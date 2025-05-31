@@ -1,0 +1,19 @@
+2025-05-31 04:23:32 [info]: Environment variables validated successfully {"service":"api-server"}
+2025-05-31 04:23:32 [debug]: App configuration: {"service":"api-server","nodeEnv":"development","port":5000,"mongoUri":"mongodb+srv://***:***@db.tuuxm.mongodb.net/database?retryWrites=true&w=majority&appName=db","appUrl":"http://localhost:5000"}
+2025-05-31 04:23:32 [info]: Starting server initialization... {"service":"api-server"}
+2025-05-31 04:23:32 [info]: Connecting to MongoDB... {"service":"api-server"}
+2025-05-31 04:23:38 [info]: MongoDB Connected Successfully {"service":"api-server"}
+2025-05-31 04:23:38 [info]: System Event Initializing Express application {"service":"api-server","event":"AppStartup","environment":"development","startupTime":"2025-05-31T11:23:38.620Z"}
+2025-05-31 04:23:38 [info]: System Event Applied Helmet security headers {"service":"api-server","event":"SecuritySetup"}
+2025-05-31 04:23:38 [info]: System Event Configured CORS {"service":"api-server","event":"SecuritySetup","origins":["http://localhost:3000","http://localhost:8080"]}
+2025-05-31 04:23:38 [info]: System Event Applied rate limiting {"service":"api-server","event":"securitySetup","window":"15 minutes","limit":100}
+2025-05-31 04:23:38 [info]: System Event Applied HPP protection {"service":"api-server","event":"SecuritySetup"}
+2025-05-31 04:23:38 [info]: System Event Configured static file serving {"service":"api-server","event":"AppSetup"}
+2025-05-31 04:23:38 [info]: System Event Configured error handling middleware {"service":"api-server","event":"AppSetup"}
+2025-05-31 04:23:38 [info]: ------------------------------------ {"service":"api-server"}
+2025-05-31 04:23:38 [info]: 🚀 Server started successfully {"service":"api-server"}
+2025-05-31 04:23:38 [info]: 📝 Environment: development {"service":"api-server"}
+2025-05-31 04:23:38 [info]: 🌐 URL: http://localhost:5000 {"service":"api-server"}
+2025-05-31 04:23:38 [info]: 🚪 Port: 5000 {"service":"api-server"}
+2025-05-31 04:23:38 [info]: 📚 API: http://localhost:5000/api {"service":"api-server"}
+2025-05-31 04:23:38 [info]: ------------------------------------ {"service":"api-server"}
