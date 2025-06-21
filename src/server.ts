@@ -1,60 +1,84 @@
-import createApp from './app';
-import { appConfig } from "./configs/config";
-import { connectDatabase, dbConfig } from './configs/database';
-import logger from "./utils/logger.util";
-import { validateEnv } from './utils/validateEnv.util';
+/**
+ * Main Server Entry Point
+ *
+ * This file initializes and configures the Express application, sets up middleware,
+ * connects to the database, and starts the HTTP server.
+ *
+ * Features:
+ * - Loads environment variables from .env
+ * - Connects to MongoDB using connectDB()
+ * - Sets up middleware: JSON parsing, URL encoding, cookies, CORS, Helmet for security
+ * - Logs HTTP requests and responses using custom logger
+ * - Registers authentication routes and a health check endpoint
+ * - Starts the server on the specified port
+ *
+ * @module server
+ */
+
+import express, { Application, Request, Response, NextFunction } from "express";
+import "dotenv/config";
+import { connectDB } from "./configs/db";
+import cors from "cors";
+import { logger } from "./utils/logger";
+import helmet from "helmet";
+import authRoutes from "./routes/auth.route";
+import cookieParser from "cookie-parser";
+
+const app: Application = express();
+const PORT: number = +(process.env.PORT ?? 4040);
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ limit: 500 }));
+
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+  })
+);
+
+app.use(helmet());
 
 /**
- * Initialize server
+ * HTTP request logging middleware.
+ * Logs incoming requests and outgoing responses using the custom logger.
  */
-const startServer = async (): Promise<void> => {
-    try {
-        // Validate environment variables
-        validateEnv();
-        
-        logger.info('Starting server initialization...');
+app.use((req: Request, res: Response, next: NextFunction) => {
+  logger.http(`[-> ${req.method} ${req.url} - IP: ${req.ip}`);
 
-        // Connect to database first
-        logger.info('Connecting to MongoDB...');
-        await connectDatabase(dbConfig);
+  // Log response when finished
+  res.on("finish", () => {
+    logger.http(`${req.method} ${req.url} - Status: ${res.statusCode} <-]`);
+  });
 
-        const app = createApp();
+  next();
+});
 
-        const server = app.listen(appConfig.port, () => {
-            logger.info('------------------------------------');
-            logger.info(`🚀 Server started successfully`);
-            logger.info(`📝 Environment: ${appConfig.nodeEnv}`);
-            logger.info(`🌐 URL: ${appConfig.appUrl}`);
-            logger.info(`🚪 Port: ${appConfig.port}`);
-            logger.info(`📚 API: ${appConfig.appUrl}/api`);
-            logger.info('------------------------------------');
-        });
+/**
+ * Health check endpoint.
+ * @route GET /api/your-api/v1/health
+ * @returns {Object} 200 - { message: " everywhere good" }
+ */
+app.get("/api/your-api/v1/health", (req: Request, res: Response) => {
+  res.status(200).json({ message: " everywhere good" });
+});
 
-        // Handle unhandled rejections
-        process.on('unhandledRejection', (err: any) => {
-            logger.error('UNHANDLED REJECTION 💥 Shutting down...', err);
-            server.close(() => {
-                process.exit(1);
-            });
-        });
+/**
+ * Authentication routes.
+ * @route /api/your-api/v1/auth
+ */
+app.use("/api/your-api/v1/auth", authRoutes);
 
-        // Handle SIGTERM signal
-        process.on('SIGTERM', () => {
-            logger.info('SIGTERM received. Shutting down gracefully');
-            server.close(() => {
-                logger.info('Process terminated');
-                process.exit(0);
-            });
-        });
+//adds loger to the app for use in other modules
+logger;
 
-    } catch (error) {
-        logger.error('Failed to start server:', error);
-        process.exit(1);
-    }
-}
+// Connect to MongoDB and start the server
+connectDB();
 
 // Start the server
-startServer().catch((error) => {
-    logger.error('Startup error:', error);
-    process.exit(1);
-});
+app.listen(PORT, () => logger.info("Server is running on " + PORT));
