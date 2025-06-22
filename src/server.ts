@@ -23,6 +23,7 @@ import { logger } from "./utils/logger";
 import helmet from "helmet";
 import authRoutes from "./routes/auth.route";
 import cookieParser from "cookie-parser";
+import uploaderRoute from "./routes/uploader.route";
 
 const app: Application = express();
 const PORT: number = +(process.env.PORT ?? 4040);
@@ -73,6 +74,7 @@ app.get("/api/your-api/v1/health", (req: Request, res: Response) => {
  * @route /api/your-api/v1/auth
  */
 app.use("/api/your-api/v1/auth", authRoutes);
+app.use("/api/gta/v1/upload", uploaderRoute);
 
 //adds loger to the app for use in other modules
 logger;

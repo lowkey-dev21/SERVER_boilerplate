@@ -3,6 +3,7 @@ import path from "path";
 import { createLogger, format, transports } from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import winston from "winston";
+import { existsSync, mkdirSync } from "fs";
 
 const { combine, timestamp } = format;
 
@@ -57,9 +58,19 @@ const logFormat = winston.format.combine(
 
 // Create the logs directory if it doesn't exist
 const logDir = path.join(process.cwd(), "logs");
-// if (!existsSync(logDir)) {
-//   mkdirSync(logDir);
-// }
+const httpDir = path.join(logDir, "http");
+const errorDir = path.join(logDir, "error");
+const combinedDir = path.join(logDir, "combined");
+const exceptionsDir = path.join(logDir, "exceptions");
+const rejectionsDir = path.join(logDir, "rejections");
+
+[logDir, httpDir, errorDir, combinedDir, exceptionsDir, rejectionsDir].forEach(
+  dir => {
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+  }
+);
 
 const logger = createLogger({
   levels: levels,
@@ -73,7 +84,7 @@ const logger = createLogger({
 
     // Combined logs with daily rotation
     new DailyRotateFile({
-      filename: path.join(logDir, "combined-%DATE%.log"),
+      filename: path.join(combinedDir, "combined-%DATE%.log"),
       datePattern: "YYYY-MM-DD",
       maxSize: "20m",
       maxFiles: "30d",
@@ -83,7 +94,7 @@ const logger = createLogger({
 
     // HTTP logs with daily rotation
     new DailyRotateFile({
-      filename: path.join(logDir, "http-%DATE%.log"),
+      filename: path.join(httpDir, "http-%DATE%.log"),
       datePattern: "YYYY-MM-DD",
       maxSize: "20m",
       maxFiles: "30d",
@@ -98,7 +109,7 @@ const logger = createLogger({
 
     // Error logs with daily rotation
     new DailyRotateFile({
-      filename: path.join(logDir, "error-%DATE%.log"),
+      filename: path.join(errorDir, "error-%DATE%.log"),
       datePattern: "YYYY-MM-DD",
       maxSize: "20m",
       maxFiles: "30d",
@@ -108,7 +119,7 @@ const logger = createLogger({
   ],
   exceptionHandlers: [
     new DailyRotateFile({
-      filename: path.join(logDir, "exceptions-%DATE%.log"),
+      filename: path.join(exceptionsDir, "exceptions-%DATE%.log"),
       datePattern: "YYYY-MM-DD",
       maxSize: "20m",
       maxFiles: "30d",
@@ -117,7 +128,7 @@ const logger = createLogger({
   ],
   rejectionHandlers: [
     new DailyRotateFile({
-      filename: path.join(logDir, "rejections-%DATE%.log"),
+      filename: path.join(rejectionsDir, "rejections-%DATE%.log"),
       datePattern: "YYYY-MM-DD",
       maxSize: "20m",
       maxFiles: "30d",
