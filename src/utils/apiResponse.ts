@@ -13,6 +13,7 @@ export enum errMessage {
   BAD_REQUEST = "Bad request",
   INTERNAL_ERROR = "Internal server error",
   VALIDATION_ERROR = "Validation error",
+  NOT_FOUND = "Not found",
 }
 
 export enum ApiResponseCode {

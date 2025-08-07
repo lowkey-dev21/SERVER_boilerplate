@@ -12,14 +12,28 @@
  * @module models/user.model
  */
 
-import { Schema, model } from "mongoose";
+import { Document, Schema, model } from "mongoose";
 import { UserRole } from "../types/user.types";
+
+
+/**
+ * ITwoFactorInfo - Interface for 2FA details
+ */
+export interface ITwoFactorInfo {
+    secret?: {
+        ascii: string;
+        hex: string;
+        base32: string;
+        otpauth_url: string;
+    };
+    enabled: boolean;
+}
 
 
 /**
  * UserI - TypeScript interface for User documents.
  */
-export interface UserI {
+export interface UserI extends Document {
   first_name: string;
   last_name: string;
   phone: string;
@@ -29,7 +43,13 @@ export interface UserI {
   role?: UserRole;
   full_name?: string; // Virtual field
   agree_terms: boolean;
+  security: {
+      two_factor: ITwoFactorInfo;
+  };
 }
+
+
+
 
 /**
  * userSchema - Mongoose schema for User.
@@ -49,7 +69,7 @@ const userSchema = new Schema(
     role: {
       type: String,
       enum: Object.values(UserRole), // User role (enum)
-      default: UserRole.STUDENT,
+      default: UserRole.USER,
     },
     profile: {
       bio: { type: String, default: "" }, // User bio
@@ -60,6 +80,26 @@ const userSchema = new Schema(
         default: "beginner",
       },
     },
+
+    is_premium : {
+        type: Boolean,
+        default: false,
+    },
+
+    security: {
+        two_factor: {
+            secret: {
+                ascii: { type: String },
+                hex: { type: String },
+                base32: { type: String },
+                otpauth_url: { type: String },
+            },
+            enabled: {
+                type: Boolean, default: false
+            }
+        }
+    },
+
     // Additional fields for user verification and password reset
     is_verified: { type: Boolean, default: false }, // Email verified status
     verify_email_token: String, // Email verification token
